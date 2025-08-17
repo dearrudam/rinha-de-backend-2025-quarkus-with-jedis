@@ -20,7 +20,7 @@ jobs:
 
     env:
       PARTICIPANTE: ${{ github.repository_owner }}_java_01
-      RESULTS_FILE_PATH: rinha-de-backend-2025/participantes/${{ env.PARTICIPANTE }}_java_01/partial-results.json
+      RESULTS_FILE_PATH: rinha-de-backend-2025/participantes/${{ github.repository_owner }}_java_01/partial-results.json
 
     permissions:
       contents: write
