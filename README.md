@@ -2,7 +2,7 @@
     <img src="https://quarkus.io/assets/images/brand/quarkus_logo_vertical_450px_default.png" alt="Logo" width="400"/>
 </p>
 
-<h1 align="center">Rinha de Backend 2025 - Maximillian Arruda</h1>
+<h1 align="center">Rinha de Backend 2025 - Submissão 01 - Maximillian Arruda</h1>
 
 
 <div align="center">
