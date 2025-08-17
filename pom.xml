@@ -130,8 +130,23 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <deployAtEnd>false</deployAtEnd>
-                    <siteDeployAtEnd>false</siteDeployAtEnd>
+                   <siteDeployAtEnd>false</siteDeployAtEnd>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.12.1</version>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
