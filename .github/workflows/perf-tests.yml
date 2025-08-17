@@ -1,0 +1,128 @@
+name: Performance Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_requests:
+          description: 'Número máximo de requisições simultâneas'
+          required: true
+          default: '550'
+          type: string
+
+  workflow_run:
+    workflows: ["Continuous Deployment"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  performance-tests:
+    runs-on: ubuntu-24.04
+
+    env:
+      PARTICIPANTE: ${{ github.repository_owner }}_java_01
+      RESULTS_FILE_PATH: rinha-de-backend-2025/participantes/${{ env.PARTICIPANTE }}_java_01/partial-results.json
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: 📦 Atualizar submódulo da Rinha
+        run: |
+          git submodule update --init --recursive
+          cd rinha-de-backend-2025
+          git pull origin main
+
+      - name: 🐳 Setup Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: 🛠️ Setup jq
+        run: sudo apt-get install -y jq
+
+      - name: 🧪 Setup k6
+        uses: grafana/setup-k6-action@v1
+        with:
+          k6-version: '1.1.0'
+
+      - name: 💰 Setup Payment Processors
+        run: |
+          pushd rinha-de-backend-2025/payment-processor/ > /dev/null
+            docker compose up --build -d 1> /dev/null 2>&1
+          popd > /dev/null
+
+      - name: 📈 Create reports folder
+        run: mkdir -p reports/{backend-01,backend-02}
+
+      - name: 🚀 Setup ${{ env.PARTICIPANTE }} Backend
+        working-directory: docs/submissions/
+        run: |
+          docker compose up --build -d 1> /dev/null 2>&1    
+
+      - name: 🔍 Check running containers
+        run: |
+          docker ps
+
+      - name: 📈 Run Performance Tests
+        run: |
+          mkdir -p rinha-de-backend-2025/participantes/${{ env.PARTICIPANTE }}
+          touch ${{ env.RESULTS_FILE_PATH }}
+          pushd rinha-de-backend-2025/rinha-test > /dev/null
+            k6 run --out json=${{ github.workspace }}/k6_results.json rinha.js
+          popd > /dev/null
+        env:
+          MAX_REQUESTS: ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }}
+          PARTICIPANT: ${{ env.PARTICIPANTE }}
+
+      - name: ⬇️ Tear Down Environment
+        working-directory: docs/submissions/
+        run: |
+          echo "Containers Still running:"
+          docker ps
+          echo "Stopping containers..."
+          docker compose stop --timeout 30
+
+      - name: ⬆️ Upload Partial Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: partial-results-${{ github.sha }}.json
+          path: ${{ env.RESULTS_FILE_PATH }}
+          compression-level: '0'
+
+      - name: 📊 Process Performance Results
+        run: |
+          PERF_FILE="perf.md"
+          COMMIT_SHA="${{ github.sha }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          echo "Extracting metrics from $RESULTS_FILE_PATH"
+          P99=$(jq -r '.p99.valor' $RESULTS_FILE_PATH)
+          SUCCESSFUL_REQUESTS=$(jq -r '.pagamentos_solicitados.qtd_sucesso' $RESULTS_FILE_PATH)
+          FAILED_REQUESTS=$(jq -r '.pagamentos_solicitados.qtd_falha' $RESULTS_FILE_PATH)
+          LAG=$(jq -r '.lag.lag' $RESULTS_FILE_PATH)
+          SCORE=$(jq -r '.total_liquido' $RESULTS_FILE_PATH)
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${COMMIT_SHA}"
+          RUN_LINK="[#${{ github.run_number }}]($RUN_URL)"
+
+          if [ ! -f "$PERF_FILE" ]; then
+            echo "# Performance Test Results" > "$PERF_FILE"
+            echo "" >> "$PERF_FILE"
+            echo "| Test Run | Commit | Timestamp | Max. Requests | P99 (ms) | Success Requests | Failed Requests | Lag | Score |" >> "$PERF_FILE"
+            echo "|----------|--------|-----------|---------------|----------|------------------|-----------------|-----|-------|" >> "$PERF_FILE"
+          fi
+
+          NEW_LINE="| ${RUN_LINK} | [${COMMIT_SHA::7}](${COMMIT_URL}) | ${TIMESTAMP} | ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }} | ${P99} | ${SUCCESSFUL_REQUESTS} | ${FAILED_REQUESTS} | ${LAG} | ${SCORE} |"
+
+          echo "$NEW_LINE" >> "$PERF_FILE"
+
+          echo "Data added to $PERF_FILE"
+          cat "$PERF_FILE"
+
+      - name: 📤 Commit Performance Results
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "radagastbot[bot]"
+          git config user.email "radagastbot[bot]@users.noreply.github.com"
+          git add perf.md
+          git commit -m "docs(performance): Update performance test results for ${{ github.sha }}"
+          git push
