@@ -38,7 +38,6 @@ jobs:
           VERSION=$(./mvnw -f ./target/checkout/pom.xml  help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Versão release: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          ./mvnw prepare-release:perform -B
 
       - name: Build native image
         working-directory: target/checkout/
