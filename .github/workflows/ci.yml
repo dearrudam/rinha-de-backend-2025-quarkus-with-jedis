@@ -1,8 +1,14 @@
 name: Continuous Integration
 
 on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
 
 jobs:
   build:
@@ -30,4 +36,3 @@ jobs:
 
       - name: Run tests
         run: ./mvnw test --batch-mode
-
