@@ -108,18 +108,19 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
 
         // Start a separate thread to handle queuing payment requests to Redis
         // This thread will take payment requests from the queue and push them to Redis
-//        this.executeService.execute(() -> {
-//            UnifiedJedis unifiedJedis = createUnifiedJedis();
-//            while (true) {
-//                try {
-//                    PaymentRequest paymentRequest = queue.take();
-//                    queueInRedis(unifiedJedis, paymentRequest);
-//                } catch (InterruptedException e) {
-//                    Thread.currentThread().interrupt(); // Restore interrupted status
-//                    break; // Exit the loop if interrupted
-//                }
-//            }
-//        });
+        if (!queueInMemory)
+            this.executeService.execute(() -> {
+                UnifiedJedis unifiedJedis = createUnifiedJedis();
+                while (true) {
+                    try {
+                        PaymentRequest paymentRequest = queue.take();
+                        queueInRedis(unifiedJedis, paymentRequest);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt(); // Restore interrupted status
+                        break; // Exit the loop if interrupted
+                    }
+                }
+            });
 
     }
 
