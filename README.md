@@ -4,27 +4,22 @@
 
 <h1 align="center">Rinha de Backend 2025 - Maximillian Arruda</h1>
 
+
 <div align="center">
 
-[//]: # (  <img src="https://img.shields.io/badge/java-21-blue" alt="Java version" />)
+  <img src="https://img.shields.io/badge/java-21-blue" alt="Java version" />
 
-<!-- Docker Builds -->
+<!-- ci -->
 
-[//]: # (  <a href="https://github.com/josimar-silva/rinha-de-backend-2025/actions/workflows/docker.yaml">)
-[//]: # (    <img src="https://github.com/josimar-silva/rinha-de-backend-2025/actions/workflows/docker.yaml/badge.svg" alt="docker builds" />)
-[//]: # (  </a>)
-
-  <!-- ci -->
-
-[//]: # (  <a href="https://github.com/josimar-silva/rinha-de-backend-2025/actions/workflows/ci.yaml">)
-[//]: # (    <img src="https://github.com/josimar-silva/rinha-de-backend-2025/actions/workflows/ci.yaml/badge.svg" alt="ci" />)
-[//]: # (  </a>)
+  <a href="https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis/actions/workflows/ci.yml">
+    <img src="https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis/actions/workflows/ci.yml/badge.svg" alt="ci" />
+  </a>
 
 <!-- cd -->
 
-[//]: # (  <a href="https://github.com/josimar-silva/rinha-de-backend-2025/actions/workflows/cd.yaml">)
-[//]: # (    <img src="https://github.com/josimar-silva/rinha-de-backend-2025/actions/workflows/cd.yaml/badge.svg" alt="cd" />)
-[//]: # (  </a>)
+  <a href="https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis/actions/workflows/cd.yml">
+    <img src="https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis/actions/workflows/cd.yml/badge.svg" alt="docker builds" />
+  </a>
 
 </div>
 
