@@ -25,7 +25,9 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -33,6 +35,10 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
 
     public static final String PAYMENTS = "payments";
     public static final String PAYMENTS_QUEUE = "payments-queued";
+
+    @Inject
+    @ConfigProperty(name = "queue.in.memory", defaultValue = "true")
+    private boolean queueInMemory;
 
     @Inject
     @ConfigProperty(name = "jedis.url", defaultValue = "redis://localhost:6377")
@@ -91,42 +97,97 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
         // Initialize the queue in Redis
         int initiatedWorker = 0;
         do {
-            executeService.execute(() -> this.listenForPayments(createUnifiedJedis()));
+
+            executeService.execute(getPaymentTask());
+//            executeService.execute(() -> this.listenForPayments(createUnifiedJedis()));
             initiatedWorker++;
         } while (initiatedWorker < this.workersSize);
         System.out.printf("Started %d workers for queue payment processing%n", initiatedWorker);
+        // If the queue is in memory, we will use the in-memory queue
+        System.out.printf("Using %s for queue%n", queueInMemory ? "in-memory queue" : "Redis queue");
 
         // Start a separate thread to handle queuing payment requests to Redis
         // This thread will take payment requests from the queue and push them to Redis
-        this.executeService.execute(() -> {
-            UnifiedJedis unifiedJedis = createUnifiedJedis();
-            while (true) {
-                try {
-                    PaymentRequest paymentRequest = queue.take();
-                    queueInRedis(unifiedJedis, paymentRequest);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt(); // Restore interrupted status
-                    break; // Exit the loop if interrupted
-                }
-            }
-        });
+//        this.executeService.execute(() -> {
+//            UnifiedJedis unifiedJedis = createUnifiedJedis();
+//            while (true) {
+//                try {
+//                    PaymentRequest paymentRequest = queue.take();
+//                    queueInRedis(unifiedJedis, paymentRequest);
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt(); // Restore interrupted status
+//                    break; // Exit the loop if interrupted
+//                }
+//            }
+//        });
 
+    }
+
+    private Runnable getPaymentTask() {
+        if (queueInMemory) {
+            // If the queue is in memory, we will use the in-memory queue
+            return this.getPaymentTaskFromMemory();
+        }
+        return this.getPaymentTaskFromJedis();
+    }
+
+    Runnable getPaymentTaskFromJedis() {
+        var unifiedJedis = createUnifiedJedis();
+        // If the queue is in memory, we will use the in-memory queue
+        return () -> this.listenForPayments(
+                () -> this.retrievePaymentRequest(unifiedJedis),
+                processedPayment -> {
+                    // On successful processing, store the processed payment in Redis
+                    unifiedJedis.lpush(PAYMENTS, jsonb.toJson(processedPayment));
+                },
+                paymentRequest -> {
+                    // On processing failure, re-queue the payment request
+                    this.queueInRedis(unifiedJedis, paymentRequest);
+                }
+        );
+    }
+
+    Runnable getPaymentTaskFromMemory() {
+        var unifiedJedis = createUnifiedJedis();
+        // If the queue is in memory, we will use the in-memory queue
+        return () -> this.listenForPayments(
+                () -> this.retrievePaymentFromMemory(),
+                processedPayment -> {
+                    // On successful processing, store the processed payment in Redis
+                    unifiedJedis.lpush(PAYMENTS, jsonb.toJson(processedPayment));
+                },
+                paymentRequest -> {
+                    // On processing failure, re-queue the payment request
+                    this.queue.offer(paymentRequest); // Re-queue in memory
+                }
+        );
+    }
+
+    private Optional<PaymentRequest> retrievePaymentFromMemory() {
+        try {
+            PaymentRequest paymentRequest = queue.take();
+            return Optional.ofNullable(paymentRequest);
+        } catch (InterruptedException e) {
+            return Optional.empty();
+        }
     }
 
     private UnifiedJedis createUnifiedJedis() {
         return new UnifiedJedis(jedisUrl);
     }
 
-    private void listenForPayments(UnifiedJedis unifiedJedis) {
+    public void listenForPayments(Supplier<Optional<PaymentRequest>> paymentRequestSupplier,
+                                  Consumer<ProcessedPayment> processedPaymentConsumer,
+                                  Consumer<PaymentRequest> onProcessingFailed) {
         while (!executeService.isShutdown()) {
             try {
-                Optional<PaymentRequest> receivedPaymentRequest = retrievePaymentRequest(unifiedJedis);
+                Optional<PaymentRequest> receivedPaymentRequest = paymentRequestSupplier.get();
                 // Process the payment request if it was received
                 receivedPaymentRequest.ifPresent(paymentRequest ->
                         externalPaymentProcessor.process(paymentRequest)
                                 .ifPresentOrElse(
-                                        processedPayment -> unifiedJedis.lpush(PAYMENTS, jsonb.toJson(processedPayment)),
-                                        () -> queue(paymentRequest) // If processing fails, re-queue the payment request
+                                        processedPaymentConsumer,
+                                        () -> onProcessingFailed.accept(paymentRequest)
                                 ));
             } catch (RuntimeException e) {
                 if (e instanceof JedisException) {
@@ -136,6 +197,7 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
             }
         }
     }
+
 
     private Optional<PaymentRequest> retrievePaymentRequest(UnifiedJedis unifiedJedis) {
         // BLPOP returns a list of two elements: the queue name and the message
