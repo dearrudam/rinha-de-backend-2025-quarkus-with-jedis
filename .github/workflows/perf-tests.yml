@@ -20,19 +20,24 @@ jobs:
 
     env:
       PARTICIPANTE: ${{ github.repository_owner }}_java_01
-      RESULTS_FILE_PATH: rinha-de-backend-2025/participantes/${{ github.repository_owner }}_java_01/partial-results.json
+      RESULTS_FILE_PATH: actual-rinha/participantes/${{ github.repository_owner }}_java_01/partial-results.json
 
     permissions:
       contents: write
       packages: write
 
     steps:
-      - name: 📦 Checkout repository
-        uses: actions/checkout@v4
+      - name: 📦 Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
-      - name: 📦 Atualizar submódulo da Rinha
-        run: |
-          git submodule update --init --recursive
+      - name: 📦 Checkout Rinha Repository
+        uses: actions/checkout@v5
+        with:
+          repository: zanfranceschi/rinha-de-backend-2025
+          path: ./actual-rinha
+          submodules: recursive
 
       - name: 🐳 Setup Docker Compose
         uses: docker/setup-compose-action@v1
@@ -47,7 +52,7 @@ jobs:
 
       - name: 💰 Setup Payment Processors
         run: |
-          pushd rinha-de-backend-2025/payment-processor/ > /dev/null
+          pushd actual-rinha/payment-processor/ > /dev/null
             docker compose up --build -d 1> /dev/null 2>&1
           popd > /dev/null
 
@@ -65,9 +70,9 @@ jobs:
 
       - name: 📈 Run Performance Tests
         run: |
-          mkdir -p rinha-de-backend-2025/participantes/${{ env.PARTICIPANTE }}
+          mkdir -p actual-rinha/participantes/${{ env.PARTICIPANTE }}
           touch ${{ env.RESULTS_FILE_PATH }}
-          pushd rinha-de-backend-2025/rinha-test > /dev/null
+          pushd actual-rinha/rinha-test > /dev/null
             k6 run --out json=${{ github.workspace }}/k6_results.json rinha.js
           popd > /dev/null
         env:
