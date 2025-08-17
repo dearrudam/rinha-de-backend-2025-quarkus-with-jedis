@@ -7,10 +7,8 @@
 
     <scm>
         <connection>scm:git:https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis.git</connection>
-        <developerConnection>scm:git:https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis.git
-        </developerConnection>
-        <url>https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis.git
-        </url><!-- it's required by release processes -->
+        <developerConnection>scm:git:https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis.git</developerConnection>
+        <url>https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis.git</url><!-- it's required by release processes -->
         <tag>HEAD</tag>
     </scm>
 
