@@ -97,9 +97,7 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
         // Initialize the queue in Redis
         int initiatedWorker = 0;
         do {
-
             executeService.execute(getPaymentTask());
-//            executeService.execute(() -> this.listenForPayments(createUnifiedJedis()));
             initiatedWorker++;
         } while (initiatedWorker < this.workersSize);
         System.out.printf("Started %d workers for queue payment processing%n", initiatedWorker);

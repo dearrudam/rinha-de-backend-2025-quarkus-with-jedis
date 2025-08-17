@@ -32,7 +32,6 @@ public class PaymentsResource {
 
     @POST
     @Path("/purge-payments")
-    @Blocking
     public Response purge() {
         paymentsService.purge();
         return Response.status(Response.Status.NO_CONTENT).build();
@@ -41,7 +40,6 @@ public class PaymentsResource {
 
     @GET
     @Path("/payments-summary")
-    @Blocking
     public Response summary(@QueryParam("from") Instant from,
                             @QueryParam("to") Instant to) {
         return Response.ok(paymentsService.summary(from, to)).build();
