@@ -27,14 +27,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Incrementar versão release
+      - name: Prepare for release
         run: |
-          ./mvnw versions:set -DnextSnapshot=false -DgenerateBackupPoms=false
-          VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
+          ./mvnw release-prepare release:prepare -B
+          VERSION=$(./mvnw -f ./target/checkout/pom.xml  help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Versão release: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          ./mvnw prepare-release:perform -B
 
       - name: Build native image
+        working-directory: target/checkout/
         run: ./mvnw clean package -Pnative --batch-mode
 
       - name: Login to GHCR
@@ -45,23 +47,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
+        working-directory: target/checkout/
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository }}
           VERSION=${{ env.VERSION }}
           docker build -f src/main/docker/Dockerfile.native-micro -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:$VERSION
           docker push $IMAGE_NAME:latest
-
-      - name: Criar tag git
-        run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
-          git tag ${{ env.VERSION }}
-          git push origin ${{ env.VERSION }}
-
-      - name: Incrementar para próxima versão SNAPSHOT
-        run: |
-          ./mvnw build-helper:parse-version versions:set -DnewVersion="${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}-SNAPSHOT" -DgenerateBackupPoms=false
-          git add pom.xml
-          git commit -m "chore: prepare for next development iteration [skip ci]" --signoff
-          git push
