@@ -30,14 +30,11 @@ jobs:
       - name: Setting up git config
         run: |
           git config --global user.name "${{ github.actor }}"
-          git config --global user.email "noreply@github.com"
-          git config --global credential.helper store
-          echo "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com" >> ~/.git-credentials
-          
+          git config --global user.email "noreply@github.com"       
 
       - name: Versioning the release
         run: |
-          ./mvnw release:prepare release:prepare -B
+          ./mvnw release:prepare release:perform -B
           VERSION=$(./mvnw -f ./target/checkout/pom.xml  help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Versão release: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
