@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.acme</groupId>
     <artifactId>rinha-de-backend-2025-quarkus-with-jedis</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <scm>
         <connection>scm:git:https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis.git</connection>
@@ -11,7 +11,7 @@
         </developerConnection>
         <url>https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis.git
         </url><!-- it's required by release processes -->
-        <tag>HEAD</tag>
+        <tag>v1.0.0</tag>
     </scm>
 
     <properties>
