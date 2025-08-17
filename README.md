@@ -121,7 +121,7 @@ Gostaria de agradecer aos seguintes amigos desenvolvedores que me ajudaram a con
   
   Grande amigo da [ConfrariaDev](https://confrariadev.com/cdv/)! Muito obrigado por compartilhar uma versão do challenge em Rust, aprendi muito com as automações que vc implementou em seu desafio! Valeu!
 
-  - Submissão do desafio:
+  - Submissão do desafio: https://github.com/josimar-silva/rinha-de-backend-2025
     - Social media:
       - https://josimar-silva.com
       - https://www.linkedin.com/in/josimar-silvx/
