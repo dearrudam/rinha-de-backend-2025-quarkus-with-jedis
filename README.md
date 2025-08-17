@@ -54,7 +54,6 @@ Como o intuito desse desafio foi de aprender e praticar o uso do Quarkus, essa i
 
 TBD
 
-
 ### Resultados de desempenho
 Se você quiser ver o desempenho desta implementação, verifique o arquivo [perf.md](perf.md).
 
@@ -113,3 +112,24 @@ k6 run rinha.js
 ```
 
 Mais informações sobre a execução dos scripts de teste podem ser encontradas no repositório oficial da [Rinha de Backend 2025](https://github.com/zanfranceschi/rinha-de-backend-2025).
+
+### Agradecimentos
+
+Gostaria de agradecer aos seguintes amigos desenvolvedores que me ajudaram a construir essa implementação:
+
+- **Josimar Silva**: 
+  
+  Grande amigo da [ConfrariaDev](https://confrariadev.com/cdv/)! Muito obrigado por compartilhar uma versão do challenge em Rust, aprendi muito com as automações que vc implementou em seu desafio! Valeu!
+
+  - Submissão do desafio:
+    - Social media:
+      - https://josimar-silva.com
+      - https://www.linkedin.com/in/josimar-silvx/
+      - https://github.com/josimar-silva
+
+- **Jonael Lemos**
+  
+  Outro grande amigo da [ConfrariaDev](https://confrariadev.com/cdv/)! Muito obrigado por compartilhar e contribuir com o desenvolvimento do desafio, foi uma confusão de repos no github, mas no final achei melhor quebrar em repos diferentes. Obrigado!
+
+    - Social media:
+      - https://github.com/consultorjonaellemos
