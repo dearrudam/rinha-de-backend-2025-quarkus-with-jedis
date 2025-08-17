@@ -26,6 +26,7 @@ services:
       - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080/payments
       - RETRIES_BEFORE_FALLBACK=10000
       - INSTANCE_NAME=backend-01
+      - QUEUE_IN_MEMORY=true
       - WORKERS_SIZE=13
     networks:
       - dearrudam-java-1-net
@@ -47,6 +48,7 @@ services:
       - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080/payments
       - RETRIES_BEFORE_FALLBACK=10000
       - INSTANCE_NAME=backend-02
+      - QUEUE_IN_MEMORY=true
       - WORKERS_SIZE=13
 
   #--- QUEUE AND STORAGE ---
