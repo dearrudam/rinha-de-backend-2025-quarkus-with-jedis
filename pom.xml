@@ -25,9 +25,6 @@
         <quarkus.platform.version>3.25.3</quarkus.platform.version>
         <quarkus.docker.dockerfile-native-path>src/main/docker/Dockerfile.native-micro
         </quarkus.docker.dockerfile-native-path>
-        <!-- ignoring deploy on maven repositories -->
-        <deployAtEnd>false</deployAtEnd>
-        <siteDeployAtEnd>false</siteDeployAtEnd>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.5.3</surefire-plugin.version>
     </properties>
@@ -133,6 +130,8 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <deployAtEnd>false</deployAtEnd>
+                    <siteDeployAtEnd>false</siteDeployAtEnd>
                 </configuration>
             </plugin>
         </plugins>
