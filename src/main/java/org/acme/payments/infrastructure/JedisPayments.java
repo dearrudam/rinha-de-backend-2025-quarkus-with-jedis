@@ -37,7 +37,7 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
     public static final String PAYMENTS_QUEUE = "payments-queued";
 
     @Inject
-    @ConfigProperty(name = "queue.in.memory", defaultValue = "true")
+    @ConfigProperty(name = "queue.in.memory", defaultValue = "false")
     private boolean queueInMemory;
 
     @Inject
