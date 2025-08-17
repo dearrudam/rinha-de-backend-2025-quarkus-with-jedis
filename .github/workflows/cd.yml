@@ -29,6 +29,8 @@ jobs:
 
       - name: Prepare for release
         run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
           ./mvnw release:prepare release:prepare -B
           VERSION=$(./mvnw -f ./target/checkout/pom.xml  help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Versão release: $VERSION"
