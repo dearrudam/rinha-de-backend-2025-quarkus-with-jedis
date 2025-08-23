@@ -137,7 +137,7 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
                 () -> this.retrievePaymentRequest(unifiedJedis),
                 processedPayment -> {
                     // On successful processing, store the processed payment in Redis
-                    unifiedJedis.lpush(PAYMENTS, jsonb.toJson(processedPayment));
+                    unifiedJedis.zadd(PAYMENTS, processedPayment.requestedAt().toEpochMilli(), jsonb.toJson(processedPayment));
                 },
                 paymentRequest -> {
                     // On processing failure, re-queue the payment request
@@ -153,7 +153,7 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
                 () -> this.retrievePaymentFromMemory(),
                 processedPayment -> {
                     // On successful processing, store the processed payment in Redis
-                    unifiedJedis.lpush(PAYMENTS, jsonb.toJson(processedPayment));
+                    unifiedJedis.zadd(PAYMENTS, processedPayment.requestedAt().toEpochMilli(), jsonb.toJson(processedPayment));
                 },
                 paymentRequest -> {
                     // On processing failure, re-queue the payment request
@@ -224,10 +224,12 @@ public class JedisPayments implements PaymentsProcessor, PaymentsRepository {
 
     @Override
     public PaymentsSummary summary(Instant from, Instant to) {
-        Map<String, PaymentSummary> summary = summaryJedis.lrange(PAYMENTS, 0, -1)
+        var min = Optional.of(from).map(Instant::toEpochMilli).orElse(0l);
+        var max = Optional.of(to).map(Instant::toEpochMilli).orElse(-1l);
+
+        Map<String, PaymentSummary> summary = summaryJedis.zrangeByScore(PAYMENTS, min, max)
                 .stream()
                 .map(json -> jsonb.fromJson(json, ProcessedPayment.class))
-                .filter(createdOn(from, to))
                 .collect(Collectors.groupingBy(
                         payment -> payment.processedBy(),
                         Collectors.collectingAndThen(
