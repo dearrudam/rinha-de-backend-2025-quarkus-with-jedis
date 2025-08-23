@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
@@ -38,13 +39,13 @@ public class ExternalPaymentProcessor {
 
     @Inject
     public ExternalPaymentProcessor(@ConfigProperty(name = "default.payment.url")
-                                            URI defaultURL,
+                                            String defaultURL,
                                     @ConfigProperty(name = "fallback.payment.url")
-                                            URI fallbackURL,
+                                            String fallbackURL,
                                     @ConfigProperty(name = "retries.before.fallback")
                                             Optional<Long> retriesBeforeFallback) {
-        this.defaultURL = defaultURL;
-        this.fallbackURL = fallbackURL;
+        this.defaultURL = URI.create(Path.of(defaultURL,"payments").toString());
+        this.fallbackURL = URI.create(Path.of(fallbackURL,"payments").toString());
         this.retriesBeforeFallback = retriesBeforeFallback.orElse(16L);
         this.httpClient = builHttpClient();
     }
