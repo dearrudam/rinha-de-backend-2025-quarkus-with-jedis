@@ -4,6 +4,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @RegisterForReflection
 public record ProcessedPayment(String correlationId, String processedBy, BigDecimal amount, Instant requestedAt) {
@@ -21,7 +22,7 @@ public record ProcessedPayment(String correlationId, String processedBy, BigDeci
                 paymentRequest.correlationId(),
                 processedBy,
                 paymentRequest.amount(),
-                Instant.now()
+                Instant.now().truncatedTo(ChronoUnit.SECONDS)
         );
     }
 
