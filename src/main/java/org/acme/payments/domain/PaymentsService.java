@@ -9,10 +9,10 @@ import java.time.Instant;
 public class PaymentsService {
 
     @Inject
-    private PaymentsProcessor paymentsProcessor;
+    PaymentsProcessor paymentsProcessor;
 
     @Inject
-    private PaymentsRepository paymentsRepository;
+    PaymentsRepository paymentsRepository;
 
 
     public void accept(PaymentRequest paymentRequest) {

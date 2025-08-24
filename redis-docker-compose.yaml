@@ -1,8 +1,7 @@
 services:
   #--- QUEUE AND STORAGE ---
-  redis:
+  redis-local:
     image: redis:latest
-    container_name: r2025-quarkus-with-jedis
     command: redis-server --save "" --appendonly no --maxclients 20000
     ports:
       - "6376:6379"

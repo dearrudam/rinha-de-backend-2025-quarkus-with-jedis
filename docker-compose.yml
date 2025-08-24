@@ -23,11 +23,11 @@ services:
       dockerfile: ./src/main/docker/Dockerfile.native-micro
     environment:
       - JEDIS_URL=redis://redis:6379
-      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080/payments
-      - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080/payments
-      - RETRIES_BEFORE_FALLBACK=10000
+      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080/
+      - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080/
+      - PAYMENT_HEALTHCHECK_INTERVAL=5s
       - INSTANCE_NAME=backend-01
-      - WORKERS_SIZE=13
+      - WORKERS_SIZE=5
     networks:
       - dearrudam-java-1-net
       - payment-processor
@@ -36,23 +36,23 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.55"
-          memory: "120MB"
+          cpus: "0.50"
+          memory: "100MB"
 
   #--- BACKEND 2 ---
   backend2:
     <<: *backend
     environment:
       - JEDIS_URL=redis://redis:6379
-      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080/payments
-      - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080/payments
-      - RETRIES_BEFORE_FALLBACK=10000
+      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080/
+      - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080/
+      - PAYMENT_HEALTHCHECK_INTERVAL=5s
       - INSTANCE_NAME=backend-02
-      - WORKERS_SIZE=13
+      - WORKERS_SIZE=5
 
   #--- QUEUE AND STORAGE ---
   redis:
-    image: redis:7.2-alpine
+    image: redis:latest
     command: redis-server --save "" --appendonly no --maxclients 20000
     ports:
       - "6376:6379"
@@ -66,8 +66,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.25"
-          memory: "90MB"
+          cpus: "0.35"
+          memory: "130MB"
 #--- NETWORKS ---
 networks:
   dearrudam-java-1-net:
