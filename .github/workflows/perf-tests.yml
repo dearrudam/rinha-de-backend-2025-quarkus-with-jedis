@@ -20,7 +20,7 @@ jobs:
 
     env:
       PARTICIPANTE: ${{ github.repository_owner }}_java_01
-      RESULTS_FILE_PATH: actual-rinha/participantes/${{ github.repository_owner }}_java_01/results.json
+      RESULTS_FILE_PATH: actual-rinha/participantes/${{ github.repository_owner }}_java_01/final-results.json
 
     permissions:
       contents: write
