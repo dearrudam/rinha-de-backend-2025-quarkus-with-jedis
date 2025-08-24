@@ -21,8 +21,6 @@ public class ExternalPaymentProcessor {
     private ExternalPaymentLoadBalancer loadBalancer;
     private Map<String, AtomicLong> errorCount = new ConcurrentHashMap<>();
 
-
-
     /**
      * Required by CDI, Don't use it directly.
      */
@@ -37,7 +35,6 @@ public class ExternalPaymentProcessor {
         this.httpClient = httpClient;
         this.loadBalancer = loadBalancer;
     }
-
 
     public Optional<ProcessedPayment> process(PaymentRequest paymentRequest) {
         ProcessedPayment payment = null;
