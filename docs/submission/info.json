@@ -11,12 +11,14 @@
   ],
   "source-code-repo": "https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis",
   "langs": [
-    "java"
+    "java", "quarkus"
   ],
   "storages": [
     "redis"
   ],
-  "messaging": [],
+  "messaging": [
+    "redis"
+  ],
   "load-balancers": [
     "nginx"
   ]
