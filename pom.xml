@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.acme</groupId>
     <artifactId>rinha-de-backend-2025-quarkus-with-jedis</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:https://github.com/dearrudam/rinha-de-backend-2025-quarkus-with-jedis.git</connection>
