@@ -73,7 +73,7 @@ jobs:
           mkdir -p actual-rinha/participantes/${{ env.PARTICIPANTE }}
           touch ${{ env.RESULTS_FILE_PATH }}
           pushd actual-rinha/rinha-test > /dev/null
-            k6 run --out json=${{ github.workspace }}/k6_results.json rinha.js
+            k6 run --out json=${{ github.workspace }}/k6_results.json rinha-final.js
           popd > /dev/null
         env:
           MAX_REQUESTS: ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }}
@@ -102,6 +102,7 @@ jobs:
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
           echo "Extracting metrics from $RESULTS_FILE_PATH"
+          TEST_SCRIPT=rinha-final.js
           P99=$(jq -r '.p99.valor' $RESULTS_FILE_PATH)
           SUCCESSFUL_REQUESTS=$(jq -r '.pagamentos_solicitados.qtd_sucesso' $RESULTS_FILE_PATH)
           FAILED_REQUESTS=$(jq -r '.pagamentos_solicitados.qtd_falha' $RESULTS_FILE_PATH)
@@ -113,11 +114,11 @@ jobs:
           if [ ! -f "$PERF_FILE" ]; then
             echo "# Performance Test Results" > "$PERF_FILE"
             echo "" >> "$PERF_FILE"
-            echo "| Test Run | Commit | Timestamp | Max. Requests | P99 (ms) | Success Requests | Failed Requests | Lag | Score |" >> "$PERF_FILE"
-            echo "|----------|--------|-----------|---------------|----------|------------------|-----------------|-----|-------|" >> "$PERF_FILE"
+            echo "| Test Run | Script | Commit | Timestamp | Max. Requests | P99 (ms) | Success Requests | Failed Requests | Lag | Score |" >> "$PERF_FILE"
+            echo "|----------|--------|--------|-----------|---------------|----------|------------------|-----------------|-----|-------|" >> "$PERF_FILE"
           fi
 
-          NEW_LINE="| ${RUN_LINK} | [${COMMIT_SHA::7}](${COMMIT_URL}) | ${TIMESTAMP} | ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }} | ${P99} | ${SUCCESSFUL_REQUESTS} | ${FAILED_REQUESTS} | ${LAG} | ${SCORE} |"
+          NEW_LINE="| ${RUN_LINK} | ${TEST_SCRIPT} | [${COMMIT_SHA::7}](${COMMIT_URL}) | ${TIMESTAMP} | ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }} | ${P99} | ${SUCCESSFUL_REQUESTS} | ${FAILED_REQUESTS} | ${LAG} | ${SCORE} |"
 
           echo "$NEW_LINE" >> "$PERF_FILE"
 
