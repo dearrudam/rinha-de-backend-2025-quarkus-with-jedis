@@ -6,7 +6,7 @@ on:
       max_requests:
           description: 'Número máximo de requisições simultâneas'
           required: true
-          default: '550'
+          default: '603'
           type: string
 
   workflow_run:
@@ -20,7 +20,7 @@ jobs:
 
     env:
       PARTICIPANTE: ${{ github.repository_owner }}_java_01
-      RESULTS_FILE_PATH: actual-rinha/participantes/${{ github.repository_owner }}_java_01/partial-results.json
+      RESULTS_FILE_PATH: actual-rinha/participantes/${{ github.repository_owner }}_java_01/results.json
 
     permissions:
       contents: write
@@ -69,15 +69,16 @@ jobs:
           docker ps
 
       - name: 📈 Run Performance Tests
+        env:
+          MAX_REQUESTS: ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }}
+          PARTICIPANT: ${{ env.PARTICIPANTE }}
         run: |
+          echo "Running performance tests with max requests: $MAX_REQUESTS"
           mkdir -p actual-rinha/participantes/${{ env.PARTICIPANTE }}
           touch ${{ env.RESULTS_FILE_PATH }}
           pushd actual-rinha/rinha-test > /dev/null
             k6 run --out json=${{ github.workspace }}/k6_results.json rinha-final.js
           popd > /dev/null
-        env:
-          MAX_REQUESTS: ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }}
-          PARTICIPANT: ${{ env.PARTICIPANTE }}
 
       - name: ⬇️ Tear Down Environment
         working-directory: docs/submission/
@@ -87,10 +88,10 @@ jobs:
           echo "Stopping containers..."
           docker compose stop --timeout 30
 
-      - name: ⬆️ Upload Partial Results
+      - name: ⬆️ Upload Results
         uses: actions/upload-artifact@v4
         with:
-          name: partial-results-${{ github.sha }}.json
+          name: results-${{ github.sha }}.json
           path: ${{ env.RESULTS_FILE_PATH }}
           compression-level: '0'
 
