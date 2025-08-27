@@ -9,14 +9,6 @@ import java.time.temporal.ChronoUnit;
 @RegisterForReflection
 public record ProcessedPayment(String correlationId, String processedBy, BigDecimal amount, Instant requestedAt) {
 
-    public static ProcessedPayment defaultPayment(PaymentRequest paymentRequest) {
-        return of("default", paymentRequest);
-    }
-
-    public static ProcessedPayment fallbackPayment(PaymentRequest paymentRequest) {
-        return of("fallback", paymentRequest);
-    }
-
     public static ProcessedPayment of(String processedBy, PaymentRequest paymentRequest) {
         return new ProcessedPayment(
                 paymentRequest.correlationId(),
