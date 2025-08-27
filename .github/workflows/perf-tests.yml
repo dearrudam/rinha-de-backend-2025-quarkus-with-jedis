@@ -70,7 +70,7 @@ jobs:
 
       - name: 📈 Run Performance Tests
         env:
-          MAX_REQUESTS: ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }}
+          MAX_REQUESTS: ${{ github.event.inputs.max_requests || 603 }}
           PARTICIPANT: ${{ env.PARTICIPANTE }}
         run: |
           echo "Running performance tests with max requests: $MAX_REQUESTS"
