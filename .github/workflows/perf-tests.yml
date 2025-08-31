@@ -105,6 +105,7 @@ jobs:
           echo "Extracting metrics from $RESULTS_FILE_PATH"
           TEST_SCRIPT=rinha-final.js
           P99=$(jq -r '.p99.valor' $RESULTS_FILE_PATH)
+          MAX_REQUESTS=$(jq -r '.p99.max_requests' $RESULTS_FILE_PATH)
           SUCCESSFUL_REQUESTS=$(jq -r '.pagamentos_solicitados.qtd_sucesso' $RESULTS_FILE_PATH)
           FAILED_REQUESTS=$(jq -r '.pagamentos_solicitados.qtd_falha' $RESULTS_FILE_PATH)
           LAG=$(jq -r '.lag.lag' $RESULTS_FILE_PATH)
@@ -119,7 +120,7 @@ jobs:
             echo "|----------|--------|--------|-----------|---------------|----------|------------------|-----------------|-----|-------|" >> "$PERF_FILE"
           fi
 
-          NEW_LINE="| ${RUN_LINK} | ${TEST_SCRIPT} | [${COMMIT_SHA::7}](${COMMIT_URL}) | ${TIMESTAMP} | ${{ github.event.inputs.max_requests || vars.MAX_REQUESTS }} | ${P99} | ${SUCCESSFUL_REQUESTS} | ${FAILED_REQUESTS} | ${LAG} | ${SCORE} |"
+          NEW_LINE="| ${RUN_LINK} | ${TEST_SCRIPT} | [${COMMIT_SHA::7}](${COMMIT_URL}) | ${TIMESTAMP} | ${MAX_REQUESTS} | ${P99} | ${SUCCESSFUL_REQUESTS} | ${FAILED_REQUESTS} | ${LAG} | ${SCORE} |"
 
           echo "$NEW_LINE" >> "$PERF_FILE"
 
