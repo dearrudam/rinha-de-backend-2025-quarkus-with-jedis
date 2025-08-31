@@ -30,7 +30,6 @@ public class ExternalPaymentHealthCheckChecker implements ExternalPaymentLoadBal
     private final URI fallbackURL;
     private final URI fallbackHealthCheckURL;
     private final Optional<Duration> healthCheckInterval;
-    private volatile boolean active;
     private final String instanceName;
     private final ExecutorService executorService;
     private final HealthCheckRepository healthCheckRepository;
@@ -38,18 +37,19 @@ public class ExternalPaymentHealthCheckChecker implements ExternalPaymentLoadBal
     private final HttpClient httpClient;
     private final Jsonb jsonb;
     private final AtomicReference<HealthCheckData> activeData = new AtomicReference<>();
+    private volatile boolean active;
 
     @Inject
     public ExternalPaymentHealthCheckChecker(@ConfigProperty(name = "default.payment.url")
-                                      URI defaultURL,
+                                             URI defaultURL,
                                              @ConfigProperty(name = "fallback.payment.url")
-                                      URI fallbackURL,
+                                             URI fallbackURL,
                                              @ConfigProperty(name = "payment.healthcheck.interval")
-                                      Optional<Duration> healthCheckInterval,
+                                             Optional<Duration> healthCheckInterval,
                                              @ConfigProperty(name = "instance.name", defaultValue = "instance-" + "#{java.util.UUID.randomUUID()}")
-                                      String instanceName,
+                                             String instanceName,
                                              @VirtualThreads
-                                      ExecutorService executorService,
+                                             ExecutorService executorService,
                                              HealthCheckRepository healthCheckRepository,
                                              LeaderResolver leaderResolver,
                                              HttpClient httpClient) {
@@ -84,12 +84,14 @@ public class ExternalPaymentHealthCheckChecker implements ExternalPaymentLoadBal
             try {
                 if (leaderResolver.amILeader(instanceName, duration)) {
 
-                    var defaultHealthCheckData = CompletableFuture.supplyAsync(() -> this.checkHealth(defaultURL, defaultHealthCheckURL), executorService);
-                    var fallbackHealthCheckData = CompletableFuture.supplyAsync(() -> this.checkHealth(fallbackURL, fallbackHealthCheckURL), executorService);
+                    var defaultHealthCheckData = CompletableFuture
+                            .supplyAsync(() -> this.checkHealth(defaultURL, defaultHealthCheckURL), executorService);
+                    var fallbackHealthCheckData = CompletableFuture
+                            .supplyAsync(() -> this.checkHealth(fallbackURL, fallbackHealthCheckURL), executorService);
 
                     CompletableFuture.allOf(defaultHealthCheckData, fallbackHealthCheckData).join();
 
-                    accept(HealthCheckData.compare(
+                    accept(HealthCheckData.elect(
                             defaultHealthCheckData.get(),
                             fallbackHealthCheckData.get(),
                             this::getDefaultTieBreaker));
