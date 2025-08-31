@@ -19,8 +19,11 @@ import java.time.Instant;
 @Consumes(MediaType.APPLICATION_JSON)
 public class PaymentsResource {
 
-    @Inject
-    private PaymentsService paymentsService;
+    private final PaymentsService paymentsService;
+
+    public PaymentsResource(PaymentsService paymentsService) {
+        this.paymentsService = paymentsService;
+    }
 
     @POST
     @Path("/payments")
