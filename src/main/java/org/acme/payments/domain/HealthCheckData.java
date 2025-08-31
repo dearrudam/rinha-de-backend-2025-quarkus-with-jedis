@@ -20,11 +20,10 @@ public record HealthCheckData(
         return ProcessedPayment.of(this.name, paymentRequest);
     }
 
-    public static HealthCheckData compare(HealthCheckData a,
-                                          HealthCheckData b,
-                                          BiFunction<HealthCheckData, HealthCheckData, HealthCheckData> tieBreaker) {
+    public static HealthCheckData elect(HealthCheckData a,
+                                        HealthCheckData b,
+                                        BiFunction<HealthCheckData, HealthCheckData, HealthCheckData> tieBreaker) {
         if (a == null && b == null) {
-            ;
             return null;
         }
         if (a == null) {
