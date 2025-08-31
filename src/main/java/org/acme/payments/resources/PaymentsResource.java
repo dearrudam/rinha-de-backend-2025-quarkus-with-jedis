@@ -1,6 +1,5 @@
 package org.acme.payments.resources;
 
-import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
