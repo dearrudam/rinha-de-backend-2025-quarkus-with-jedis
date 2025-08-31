@@ -1,19 +1,19 @@
 package org.acme.payments.domain;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import java.time.Instant;
 
 @ApplicationScoped
 public class PaymentsService {
 
-    @Inject
-    PaymentsProcessor paymentsProcessor;
+    private final PaymentsProcessor paymentsProcessor;
+    private final PaymentsRepository paymentsRepository;
 
-    @Inject
-    PaymentsRepository paymentsRepository;
-
+    public PaymentsService(PaymentsProcessor paymentsProcessor, PaymentsRepository paymentsRepository) {
+        this.paymentsProcessor = paymentsProcessor;
+        this.paymentsRepository = paymentsRepository;
+    }
 
     public void accept(PaymentRequest paymentRequest) {
         paymentsProcessor.queue(paymentRequest);
